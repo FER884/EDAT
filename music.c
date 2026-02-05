@@ -34,6 +34,131 @@ struct _Music
 /*
 Private function:
 */
+
+/**
+ * @brief Constructor. Initialize a Music.
+ * 
+ * This function allocates memory for a Music and sets its fields to 
+ * id to 0, title to "", artist to "", duration to 0 and state to NOT_LISTENED.
+ *
+ * @code
+ * // Example of use
+ * Music * m;
+ * m = Music_init();
+ * @endcode
+ *
+ * @return Return the initialized Music if it was done correctly, 
+ * otherwise return NULL.
+*/
+Music * music_init ()
+{
+  Music * mus;
+  mus = malloc(sizeof(Music));
+  if (mus == NULL)
+  {
+    return NULL;
+  }
+  
+ strcpy(mus->artist, "");
+ strcpy(mus->title, "");
+ mus->id = 0;
+ mus->duration = 0;
+ mus->state = NOT_LISTENED;
+ 
+ return mus;
+}
+
+/**
+ * @brief Destructor. Free the dynamic memory reserved for a Music .
+ *
+ * @param m Music to free
+ */
+void music_free (void * m)
+{
+  if (m == NULL)
+  {
+    return;
+  }
+  
+  free(m);
+}
+
+/**
+ * @brief  Gets the Music id.
+ *
+ * @param m Music pointer
+ *
+ * @return  Returns the id of the given Music, or -1 in case of error.
+ */
+long music_getId (const Music * m)
+{
+  if (m == NULL)
+  {
+
+    return -1;
+  }
+
+  return m->id;
+  
+}
+
+
+/**
+ * @brief Gets the Music title.
+ *
+ * @param m Music pointer
+ *
+ * @return Returns a pointer to the title of the Music, or NULL in 
+ * case of error.
+ */
+const char* music_getTitle (const Music * m)
+{
+  if (m == NULL)
+  {
+    return NULL;
+  }
+
+  return m->title;
+  
+}
+
+
+/**
+ * @brief Gets the Music artist.
+ *
+ * @param m Music pointer
+ *
+ * @return Returns a pointer to the artist of the Music, or NULL in 
+ * case of error.
+ */
+const char* music_getArtist (const Music * m)
+{
+  if (m == NULL)
+  {
+    return NULL;
+  }
+  
+  return m->artist;
+}
+
+
+/**
+ * @brief Gets the Music duration.
+ *
+ * @param m Music pointer
+ *
+ * @return Returns the duration of the given Music, or -1 in case of error.
+ */
+unsigned short music_getDuration (const Music * m)
+{
+  if ( m == NULL)
+  {
+    return 1;
+  }
+  
+  return m->duration;
+}
+
 Status music_setField (Music *m, char *key, char *value);
 
 Status music_setField (Music *m, char *key, char *value) {
@@ -132,6 +257,9 @@ int music_formatted_print (FILE * pf, const void * m) {
 	
 	return counter;
 }
+
+
+
 
 
 
