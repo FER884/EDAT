@@ -19,6 +19,15 @@
 /* END [STR_LENGTH] */
 
 /* Music declaration goes here */
+struct _Music
+{
+  long id;
+  char title[STR_LENGTH];
+  char artist[STR_LENGTH];
+  unsigned short duration;
+  State state;
+};
+
 
 
 /*----------------------------------------------------------------------------------------*/
