@@ -98,7 +98,7 @@ Status radio_newMusic(Radio *r, char *desc)
 
     for (int i = 0; i < r->num_music; i++)
     {
-        if (music_getId(r->songs[i]) ==  music_getId(new_music));
+        if (music_getId(r->songs[i]) ==  music_getId(new_music))
         {   
             music_free(new_music);
             return OK;
@@ -106,20 +106,7 @@ Status radio_newMusic(Radio *r, char *desc)
         
     }
     
-    Music **tmp;
-    
-    tmp = realloc(r->songs,(r->num_music + 1) * sizeof(Music*));
-
-    if (tmp == NULL)
-    {
-        music_free(new_music);
-        return ERROR;
-    }
-
-    r->songs = tmp;
-    
-
-    
+    r->num_music++;
     r->songs[r->num_music] = new_music;
 
     return OK;
