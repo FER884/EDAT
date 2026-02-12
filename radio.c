@@ -57,7 +57,7 @@ void radio_free(Radio *r)
 {
     if (r == NULL)
     {
-        return NULL;
+        return;
     }
     
     for (int i = 0; i < r->num_music; i++)
@@ -247,4 +247,3 @@ int radio_print (FILE *pf, const Radio *r);
  * @return OK or ERROR
  */
 Status radio_readFromFile (FILE *fin, Radio *r);
-
