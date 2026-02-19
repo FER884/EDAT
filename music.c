@@ -11,6 +11,7 @@
  */
 
 #include <string.h>
+#include <ctype.h>
 #include "music.h"
 
 /* START [STR_LENGTH] */
@@ -139,9 +140,9 @@ Music *music_init() {
  */
 Music *music_initFromString(char *descr) {
   Music *m;
-  char *pair;
-  char *saveptr;
-  char *separator;
+  char *cursor;
+  char *key;
+  char *value;
   char *buffer;
 
   if (!descr) return NULL;
@@ -155,23 +156,54 @@ Music *music_initFromString(char *descr) {
     return NULL;
   }
 
-  pair = strtok_r(buffer, " \t\n", &saveptr);
-  while (pair) {
-    separator = strchr(pair, ':');
-    if (!separator) {
+  cursor = buffer;
+  while (*cursor) {
+    while (*cursor && isspace((unsigned char)*cursor)) cursor++;
+    if (!*cursor) break;
+
+    key = cursor;
+    while (*cursor && *cursor != ':' && !isspace((unsigned char)*cursor)) cursor++;
+    if (*cursor != ':') {
       music_free(m);
       free(buffer);
       return NULL;
     }
 
-    *separator = '\0';
-    if (music_setField(m, pair, separator + 1) == ERROR) {
+    *cursor = '\0';
+    cursor++;
+
+    while (*cursor && isspace((unsigned char)*cursor)) cursor++;
+    if (!*cursor) {
       music_free(m);
       free(buffer);
       return NULL;
     }
 
-    pair = strtok_r(NULL, " \t\n", &saveptr);
+    if (*cursor == '"') {
+      cursor++;
+      value = cursor;
+      while (*cursor && *cursor != '"') cursor++;
+      if (*cursor != '"') {
+        music_free(m);
+        free(buffer);
+        return NULL;
+      }
+      *cursor = '\0';
+      cursor++;
+    } else {
+      value = cursor;
+      while (*cursor && !isspace((unsigned char)*cursor)) cursor++;
+      if (*cursor) {
+        *cursor = '\0';
+        cursor++;
+      }
+    }
+
+    if (music_setField(m, key, value) == ERROR) {
+      music_free(m);
+      free(buffer);
+      return NULL;
+    }
   }
 
   free(buffer);
