@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "radio.h"
+#include "stack.h"
+
+
 int show_player_menu(Stack *history);
 int show_player_menu(Stack *history) {
     int option;
@@ -30,8 +34,77 @@ int show_player_menu(Stack *history) {
 }
 
 /* TODO MAIN FUNCTION */
-int main (int argc, char **argv) {
+int main (int argc, char **argv) 
+{   
+    int cmd = 0;
+    Radio* radio = NULL;
+    Stack* stack = NULL;
+    FILE* f = NULL;
 
+    if (!(argv) || argc == 2)
+    {
+        return 0;
+    }
+    
+
+    if (!(f = fopen(argv[1], "r")))
+    {
+        return 0;
+    }
+
+    radio = radio_init();
+    if (radio == NULL)
+    {
+        return 0;
+    }
+
+    if (radio_readFromFile(f, radio) == ERROR)
+    {      
+        radio_free(radio);
+        return 0;
+    }
+    fclose(f);
+    
+    stack = stack_init();
+    if (stack == NULL)
+    {   
+        fprintf(stdout, "Error inicializando la pila");
+        radio_free(radio);
+        return 0;
+    }
+
+    for (int i = 0; i < radio_getNumberOfMusic(radio); i++)
+    {
+        if (stack_push(stack, radio_get_musicbyindex(radio, i)) == ERROR)
+        {
+            radio_free(radio);
+            stack_free(stack);
+            return 0;
+        }
+        
+    }
+    
+    
+    while (1)
+    {
+        cmd = show_player_menu(stack);
+        if (cmd == 2)
+        {
+            stack_free(stack);
+            radio_free(radio);
+            break;
+            return 0;
+        }else if (cmd == 1)
+        {
+            stack_pop(stack);
+        }
+        
+        
+    }
+    
+    
+
+    
 }
 
 

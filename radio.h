@@ -186,4 +186,5 @@ int radio_print (FILE *pf, const Radio *r);
  */
 Status radio_readFromFile (FILE *fin, Radio *r);
 
+Music* radio_get_musicbyindex(Radio* r, int pos);
 #endif /* radio_H */

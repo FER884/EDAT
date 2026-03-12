@@ -358,3 +358,13 @@ Status radio_readFromFile(FILE *fin, Radio *r) {
 
   return OK;
 }
+Music* radio_get_musicbyindex(Radio* r,int pos)
+{
+  if (r == NULL || pos < 0)
+  {
+    return NULL;
+  }
+
+  return r->songs[pos];
+
+}
