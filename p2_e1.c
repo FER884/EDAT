@@ -41,7 +41,7 @@ int main (int argc, char **argv)
     Stack* stack = NULL;
     FILE* f = NULL;
 
-    if (!(argv) || argc == 2)
+    if (!(argv) || argc != 2)
     {
         return 0;
     }
@@ -77,11 +77,11 @@ int main (int argc, char **argv)
     {
         if (stack_push(stack, radio_get_musicbyindex(radio, i)) == ERROR)
         {
-            radio_free(radio);
+            fprintf(stdout, "Error añadiendo canción a la pila");
             stack_free(stack);
+            radio_free(radio);
             return 0;
         }
-        
     }
     
     
