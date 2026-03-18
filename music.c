@@ -25,6 +25,7 @@ struct _Music {
   char artist[STR_LENGTH];
   unsigned short duration;
   State state;
+  int index;
 };
 
 /*----------------------------------------------------------------------------------------*/
@@ -124,6 +125,7 @@ Music *music_init() {
   m->artist[0] = '\0';
   m->duration = 0;
   m->state = NOT_LISTENED;
+  m->index = -1;
 
   return m;
 }
@@ -281,6 +283,18 @@ State music_getState(const Music *m) {
 }
 
 /**
+ * @brief Gets the position index of a Music inside a Radio.
+ *
+ * @param m Music pointer.
+ *
+ * @return Returns the index of the Music, or -1 in case of error.
+ */
+int music_getIndex(const Music *m) {
+  if (!m) return -1;
+  return m->index;
+}
+
+/**
  * @brief Modifies the id of a given Music.
  *
  * @param m Music pointer.
@@ -363,6 +377,21 @@ Status music_setState(Music *m, const State state) {
 }
 
 /**
+ * @brief Modifies the index of a given Music.
+ *
+ * @param m Music pointer.
+ * @param index New Music index, must be equal or greater than -1.
+ *
+ * @return Returns OK or ERROR in case of error.
+ */
+Status music_setIndex(Music *m, const int index) {
+  if (!m || index < -1) return ERROR;
+
+  m->index = index;
+  return OK;
+}
+
+/**
  * @brief Compares two music.
  *
  * First it compares their ids. If they are equal, then compares
@@ -416,6 +445,7 @@ void *music_copy(const void *src) {
   copy->artist[STR_LENGTH - 1] = '\0';
   copy->duration = m->duration;
   copy->state = m->state;
+  copy->index = m->index;
 
   return copy;
 }
@@ -438,8 +468,9 @@ int music_plain_print(FILE *pf, const void *m) {
   if (!pf || !m) return -1;
   aux = (const Music *)m;
 
-  return fprintf(pf, "[%ld, %s, %s, %hu, %d]",
-                 aux->id, aux->title, aux->artist, aux->duration, (int)aux->state);
+  return fprintf(pf, "[%ld, %s, %s, %hu, %d, %d]",
+                 aux->id, aux->title, aux->artist, aux->duration, (int)aux->state,
+                 aux->index);
 }
 
 /**

@@ -139,6 +139,15 @@ unsigned short music_getDuration (const Music * m);
  */
 State music_getState (const Music * m);
 
+/**
+ * @brief Gets the position index of a Music inside a Radio.
+ *
+ * @param m Music pointer
+ *
+ * @return Returns the index of the Music, or -1 in case of error.
+ */
+int music_getIndex (const Music * m);
+
 
 /**
  * @brief Modifies the id of a given Music.
@@ -193,6 +202,16 @@ Status music_setDuration (Music * m, const unsigned short duration);
  * @return Returns OK or ERROR in case of error.
  */
 Status music_setState (Music * m, const State state);
+
+/**
+ * @brief Modifies the index of a given Music.
+ *
+ * @param m Music pointer
+ * @param index New Music index, must be equal or greater than -1
+ *
+ * @return Returns OK or ERROR in case of error.
+ */
+Status music_setIndex (Music * m, const int index);
 
 
 

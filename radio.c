@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "queue.h"
 #include "radio.h"
+#include "stack.h"
 
 #define MAX_MSC 4096
 #define RADIO_LINE_SIZE 4096
@@ -19,6 +21,7 @@ struct _Radio {
 Private functions:
 */
 static int radio_getIndexById(const Radio *r, long id);
+static Status radio_resetMusicStates(Radio *r);
 
 static int radio_getIndexById(const Radio *r, long id) {
   int i;
@@ -30,6 +33,18 @@ static int radio_getIndexById(const Radio *r, long id) {
   }
 
   return -1;
+}
+
+static Status radio_resetMusicStates(Radio *r) {
+  int i;
+
+  if (!r) return ERROR;
+
+  for (i = 0; i < r->num_music; i++) {
+    if (music_setState(r->songs[i], NOT_LISTENED) == ERROR) return ERROR;
+  }
+
+  return OK;
 }
 
 /*----------------------------------------------------------------------------------------*/
@@ -108,6 +123,11 @@ Status radio_newMusic(Radio *r, char *desc) {
   if (radio_getIndexById(r, new_id) >= 0) {
     music_free(new_music);
     return OK;
+  }
+
+  if (music_setIndex(new_music, r->num_music) == ERROR) {
+    music_free(new_music);
+    return ERROR;
   }
 
   r->songs[r->num_music] = new_music;
@@ -269,6 +289,21 @@ long *radio_getRelationsFromId(const Radio *r, long id) {
 }
 
 /**
+ * @brief Returns the Music stored at a given position of the radio.
+ *
+ * @param r Pointer to the radio.
+ * @param index Position of the song in the radio.
+ *
+ * @return Returns a pointer to the Music at the given position, or NULL if
+ * there is any error.
+ */
+Music *radio_getMusicAt(const Radio *r, int index) {
+  if (!r || index < 0 || index >= r->num_music) return NULL;
+
+  return r->songs[index];
+}
+
+/**
  * @brief Prints a radio.
  *
  * Prints the radio g to the file pf.
@@ -356,5 +391,174 @@ Status radio_readFromFile(FILE *fin, Radio *r) {
     }
   }
 
+  return OK;
+}
+
+/**
+ * @brief Makes a depth-first search from one music to another.
+ *
+ * The function prints each visited music while traversing the radio.
+ *
+ * @param r Pointer to radio.
+ * @param from_id ID of the origin Music.
+ * @param to_id ID of the destination Music.
+ *
+ * @return The function returns OK or ERROR.
+ */
+Status radio_depthSearch(Radio *r, long from_id, long to_id) {
+  Stack *s;
+  Music *origin;
+  Music *target;
+  Music *current;
+  Music *next;
+  int i_from;
+  int i_to;
+  int i;
+  int row;
+
+  if (!r) return ERROR;
+
+  i_from = radio_getIndexById(r, from_id);
+  i_to = radio_getIndexById(r, to_id);
+  if (i_from < 0 || i_to < 0) return ERROR;
+
+  if (radio_resetMusicStates(r) == ERROR) return ERROR;
+
+  s = stack_init();
+  if (!s) return ERROR;
+
+  origin = r->songs[i_from];
+  target = r->songs[i_to];
+  if (music_setState(origin, LISTENED) == ERROR || stack_push(s, origin) == ERROR) {
+    stack_free(s);
+    return ERROR;
+  }
+
+  while (stack_isEmpty(s) == FALSE) {
+    current = (Music *)stack_pop(s);
+    if (!current) {
+      stack_free(s);
+      return ERROR;
+    }
+
+    if (music_plain_print(stdout, current) < 0 || fprintf(stdout, "\n") < 0) {
+      stack_free(s);
+      return ERROR;
+    }
+
+    if (music_getId(current) == music_getId(target)) {
+      stack_free(s);
+      return OK;
+    }
+
+    row = music_getIndex(current);
+    if (row < 0 || row >= r->num_music) {
+      stack_free(s);
+      return ERROR;
+    }
+
+    for (i = 0; i < r->num_music; i++) {
+      if (r->relations[row][i] == FALSE) continue;
+
+      next = r->songs[i];
+      if (music_getState(next) == NOT_LISTENED) {
+        if (music_setState(next, LISTENED) == ERROR || stack_push(s, next) == ERROR) {
+          stack_free(s);
+          return ERROR;
+        }
+      }
+    }
+  }
+
+  stack_free(s);
+  return OK;
+}
+
+/**
+ * @brief Makes a breadth-first search from one music to another.
+ *
+ * The function prints each visited music while traversing the radio.
+ *
+ * @param r Pointer to radio.
+ * @param from_id ID of the origin Music.
+ * @param to_id ID of the destination Music.
+ *
+ * @return The function returns OK or ERROR.
+ *
+ * Question 1:
+ * DFS explores one branch as deep as possible before backtracking, while BFS
+ * explores the radio level by level from the origin music.
+ *
+ * Question 2:
+ * DFS works well in problems such as maze exploration or topological traversal
+ * of dependency graphs. BFS works well in problems such as shortest path in an
+ * unweighted graph or minimum-number-of-hops recommendation systems.
+ */
+Status radio_breadthSearch(Radio *r, long from_id, long to_id) {
+  Queue *q;
+  Music *origin;
+  Music *target;
+  Music *current;
+  Music *next;
+  int i_from;
+  int i_to;
+  int i;
+  int row;
+
+  if (!r) return ERROR;
+
+  i_from = radio_getIndexById(r, from_id);
+  i_to = radio_getIndexById(r, to_id);
+  if (i_from < 0 || i_to < 0) return ERROR;
+
+  if (radio_resetMusicStates(r) == ERROR) return ERROR;
+
+  q = queue_new();
+  if (!q) return ERROR;
+
+  origin = r->songs[i_from];
+  target = r->songs[i_to];
+  if (music_setState(origin, LISTENED) == ERROR || queue_push(q, origin) == ERROR) {
+    queue_free(q);
+    return ERROR;
+  }
+
+  while (queue_isEmpty(q) == FALSE) {
+    current = (Music *)queue_pop(q);
+    if (!current) {
+      queue_free(q);
+      return ERROR;
+    }
+
+    if (music_plain_print(stdout, current) < 0 || fprintf(stdout, "\n") < 0) {
+      queue_free(q);
+      return ERROR;
+    }
+
+    if (music_getId(current) == music_getId(target)) {
+      queue_free(q);
+      return OK;
+    }
+
+    row = music_getIndex(current);
+    if (row < 0 || row >= r->num_music) {
+      queue_free(q);
+      return ERROR;
+    }
+
+    for (i = 0; i < r->num_music; i++) {
+      if (r->relations[row][i] == FALSE) continue;
+
+      next = r->songs[i];
+      if (music_getState(next) == NOT_LISTENED) {
+        if (music_setState(next, LISTENED) == ERROR || queue_push(q, next) == ERROR) {
+          queue_free(q);
+          return ERROR;
+        }
+      }
+    }
+  }
+
+  queue_free(q);
   return OK;
 }

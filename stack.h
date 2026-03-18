@@ -33,6 +33,11 @@ typedef struct _Stack Stack;
  **/
 typedef int (*P_stack_ele_print)(FILE *, const void*);
 
+/**
+ * @brief Typedef for a function pointer to compare two stack elements
+ **/
+typedef int (*P_stack_ele_cmp)(const void *, const void *);
+
 
 /**
  * @brief This function initializes an empty stack.

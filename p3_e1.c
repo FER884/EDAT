@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "music.h"
+#include "queue.h"
 #include "radio.h"
-#include "stack.h"
 
 #define MENU_LINE_SIZE 64
 
-static int show_player_menu(Stack *history);
+static Music *current_music = NULL;
+
+static int now_playing_menu(Queue *q);
 static int read_menu_option(void);
-static int music_history_print(FILE *pf, const void *m);
 
 static int read_menu_option(void) {
   char line[MENU_LINE_SIZE];
@@ -25,32 +25,17 @@ static int read_menu_option(void) {
   return (int)option;
 }
 
-static int music_history_print(FILE *pf, const void *m) {
-  const Music *music = (const Music *)m;
-
-  if (!pf || !music) return -1;
-
-  return fprintf(pf, "[%ld, %s, %s, %hu, %d]",
-                 music_getId(music), music_getTitle(music), music_getArtist(music),
-                 music_getDuration(music), (int)music_getState(music));
-}
-
-static int show_player_menu(Stack *history) {
-  Music *m = NULL;
-
-  if (!history) return 2;
-
-  m = (Music *)stack_top(history);
-  if (m != NULL) {
-    music_formatted_print(stdout, m);
+static int now_playing_menu(Queue *q) {
+  if (current_music) {
+    music_formatted_print(stdout, current_music);
   } else {
     printf("\nNo song currently playing.\n");
   }
 
-  printf("\nRecently Played:\n");
-  stack_print(stdout, history, music_history_print);
+  printf("\nUpcoming:\n");
+  if (queue_print(stdout, q, music_plain_print) < 0) return 2;
 
-  printf("\n1. Back to previous song\n");
+  printf("\n1. Next song\n");
   printf("2. Exit\n");
   printf("Choose an option: ");
 
@@ -60,10 +45,10 @@ static int show_player_menu(Stack *history) {
 int main(int argc, char **argv) {
   FILE *fin = NULL;
   Radio *radio = NULL;
-  Stack *history = NULL;
+  Queue *play_queue = NULL;
   Music *m = NULL;
-  int i;
   int option;
+  int i;
 
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <radio_file>\n", argv[0]);
@@ -92,34 +77,36 @@ int main(int argc, char **argv) {
 
   fclose(fin);
 
-  history = stack_init();
-  if (!history) {
-    fprintf(stderr, "Error: could not initialize history stack\n");
+  play_queue = queue_new();
+  if (!play_queue) {
+    fprintf(stderr, "Error: could not initialize playback queue\n");
     radio_free(radio);
     return EXIT_FAILURE;
   }
 
   for (i = 0; i < radio_getNumberOfMusic(radio); i++) {
     m = radio_getMusicAt(radio, i);
-    if (!m || stack_push(history, m) == ERROR) {
-      fprintf(stderr, "Error: could not push music into history\n");
-      stack_free(history);
+    if (!m || queue_push(play_queue, m) == ERROR) {
+      fprintf(stderr, "Error: could not enqueue music\n");
+      queue_free(play_queue);
       radio_free(radio);
       return EXIT_FAILURE;
     }
   }
 
+  current_music = (Music *)queue_pop(play_queue);
+
   do {
-    option = show_player_menu(history);
+    option = now_playing_menu(play_queue);
 
     if (option == 1) {
-      if (stack_isEmpty(history) == FALSE) stack_pop(history);
+      current_music = (Music *)queue_pop(play_queue);
     } else if (option != 2) {
       printf("Invalid option\n");
     }
   } while (option != 2);
 
-  stack_free(history);
+  queue_free(play_queue);
   radio_free(radio);
 
   return EXIT_SUCCESS;

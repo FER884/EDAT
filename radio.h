@@ -132,6 +132,17 @@ int radio_getNumberOfRelationsFromId(const Radio *r, long id);
  */
 long *radio_getRelationsFromId(const Radio *r, long id);
 
+/**
+ * @brief Returns the Music stored at a given position of the radio.
+ *
+ * @param r Pointer to the radio.
+ * @param index Position of the song in the radio.
+ *
+ * @return Returns a pointer to the Music at the given position, or NULL if
+ * there is any error.
+ */
+Music *radio_getMusicAt(const Radio *r, int index);
+
 
 /**
  * @brief Prints a radio.
@@ -185,5 +196,40 @@ int radio_print (FILE *pf, const Radio *r);
  * @return OK or ERROR
  */
 Status radio_readFromFile (FILE *fin, Radio *r);
+
+/**
+ * @brief Makes a depth-first search from one music to another.
+ *
+ * The function prints each visited music while traversing the radio.
+ *
+ * @param r Pointer to radio.
+ * @param from_id ID of the origin Music.
+ * @param to_id ID of the destination Music.
+ *
+ * @return The function returns OK or ERROR.
+ */
+Status radio_depthSearch(Radio *r, long from_id, long to_id);
+
+/**
+ * @brief Makes a breadth-first search from one music to another.
+ *
+ * The function prints each visited music while traversing the radio.
+ *
+ * @param r Pointer to radio.
+ * @param from_id ID of the origin Music.
+ * @param to_id ID of the destination Music.
+ *
+ * @return The function returns OK or ERROR.
+ *
+ * Question 1:
+ * DFS explores one branch as deep as possible before backtracking, while BFS
+ * explores the radio level by level from the origin music.
+ *
+ * Question 2:
+ * DFS works well in problems such as maze exploration or topological traversal
+ * of dependency graphs. BFS works well in problems such as shortest path in an
+ * unweighted graph or minimum-number-of-hops recommendation systems.
+ */
+Status radio_breadthSearch(Radio *r, long from_id, long to_id);
 
 #endif /* radio_H */
