@@ -30,8 +30,8 @@ static int music_history_print(FILE *pf, const void *m) {
 
   if (!pf || !music) return -1;
 
-  return fprintf(pf, "[%ld, %s, %s, %hu, %d]",
-                 music_getId(music), music_getTitle(music), music_getArtist(music),
+  return fprintf(pf, "[%ld, %s, %s, %hu, %d]", music_getId(music),
+                 music_getTitle(music), music_getArtist(music),
                  music_getDuration(music), (int)music_getState(music));
 }
 

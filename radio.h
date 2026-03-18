@@ -196,7 +196,6 @@ int radio_print (FILE *pf, const Radio *r);
  * @return OK or ERROR
  */
 Status radio_readFromFile (FILE *fin, Radio *r);
-
 /**
  * @brief Makes a depth-first search from one music to another.
  *
@@ -231,5 +230,20 @@ Status radio_depthSearch(Radio *r, long from_id, long to_id);
  * unweighted graph or minimum-number-of-hops recommendation systems.
  */
 Status radio_breadthSearch(Radio *r, long from_id, long to_id);
+
+/**
+ * @brief Compatibility helper that returns the Music stored at a given
+ * position of the radio.
+ *
+ * This alias keeps the API used by the pulled changes while reusing the
+ * indexed accessor already present in the current codebase.
+ *
+ * @param r Pointer to the radio.
+ * @param pos Position of the song in the radio.
+ *
+ * @return Returns a pointer to the Music at the given position, or NULL if
+ * there is any error.
+ */
+Music *radio_get_musicbyindex(Radio *r, int pos);
 
 #endif /* radio_H */

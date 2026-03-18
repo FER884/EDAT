@@ -155,6 +155,10 @@ run:
 	@echo ">>>>>>Running p3_e3"
 	./p3_e3 radio_bfs.txt
 
+runv:
+	@echo ">>>>>>Running p2_e1 with valgrind"
+	valgrind --leak-check=full ./p2_e1 radio.txt
+
 run_stack:
 	@echo ">>>>>>Running p2_e1s"
 	./p2_e1s radio.txt
