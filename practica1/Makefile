@@ -1,0 +1,57 @@
+########################################################
+CC = gcc
+CFLAGS = -g -Wall
+IFLAGS = -I.. -I../practica2 -I../practica3
+LDFLAGS = -L../practica2
+LDLIBS = -lstack
+
+EJS = p1_e1 p1_e2 p1_e3
+
+P1_E1_OBJS = p1_e1.o music.o
+RADIO_COMMON_OBJS = radio.o music.o queue.o
+P1_E2_OBJS = p1_e2.o $(RADIO_COMMON_OBJS)
+P1_E3_OBJS = p1_e3.o $(RADIO_COMMON_OBJS)
+########################################################
+
+all: $(EJS) clear
+
+p1_e1: $(P1_E1_OBJS)
+	$(CC) $(CFLAGS) -o $@ $(P1_E1_OBJS)
+
+p1_e2: $(P1_E2_OBJS) ../practica2/libstack.a
+	$(CC) $(CFLAGS) $(IFLAGS) -o $@ $(P1_E2_OBJS) $(LDFLAGS) $(LDLIBS)
+
+p1_e3: $(P1_E3_OBJS) ../practica2/libstack.a
+	$(CC) $(CFLAGS) $(IFLAGS) -o $@ $(P1_E3_OBJS) $(LDFLAGS) $(LDLIBS)
+
+p1_e1.o: p1_e1.c ../music.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+p1_e2.o: p1_e2.c ../music.h ../radio.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+p1_e3.o: p1_e3.c ../music.h ../radio.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+music.o: ../music.c ../music.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+radio.o: ../radio.c ../radio.h ../music.h ../practica2/stack.h ../practica3/queue.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+queue.o: ../practica3/queue.c ../practica3/queue.h ../types.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+clear:
+	rm -rf *.o
+
+clean:
+	rm -rf *.o $(EJS)
+
+run:
+	@echo ">>>>>>Running p1_e1"
+	./p1_e1
+	@echo ">>>>>>Running p1_e2"
+	./p1_e2
+	@echo ">>>>>>Running p1_e3"
+	./p1_e3 radio1.txt
