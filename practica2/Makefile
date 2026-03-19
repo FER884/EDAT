@@ -1,7 +1,7 @@
 ########################################################
 CC = gcc
 CFLAGS = -g -Wall
-IFLAGS = -I.. -I. -I../practica3
+IFLAGS = -I.. -I.
 LDFLAGS = -L.
 LDLIBS = -lstack
 
@@ -57,10 +57,10 @@ p2_e3.o: p2_e3.c ../music.h ../radio.h stack.h
 music.o: ../music.c ../music.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-radio.o: ../radio.c ../radio.h ../music.h stack.h ../practica3/queue.h
+radio.o: ../radio.c ../radio.h ../music.h stack.h queue.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-queue.o: ../practica3/queue.c ../practica3/queue.h ../types.h
+queue.o: queue.c queue.h ../types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 stack.o: stack.c stack.h ../types.h
