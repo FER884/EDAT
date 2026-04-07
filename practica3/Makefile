@@ -49,13 +49,13 @@ music.o: ../music.c ../music.h
 radio.o: ../radio.c ../radio.h ../music.h ../practica2/stack.h queue.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-queue.o: queue.c queue.h ../types.h
+queue.o: queue.c queue.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-list.o: list.c list.h ../types.h
+list.o: list.c list.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-queueList.o: queueList.c queue.h list.h ../types.h
+queueList.o: queueList.c queue.h list.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clear:

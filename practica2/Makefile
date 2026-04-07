@@ -8,7 +8,7 @@ LDLIBS = -lstack
 EJS = p2_e1 p2_e2a p2_e2b p2_e3
 STACK_EJS = p2_e1s p2_e2as p2_e2bs p2_e3s
 
-RADIO_COMMON_OBJS = radio.o music.o queue.o
+RADIO_COMMON_OBJS = radio.o music.o 
 P2_E1_OBJS = p2_e1.o $(RADIO_COMMON_OBJS)
 P2_E2A_OBJS = p2_e2a.o $(RADIO_COMMON_OBJS)
 P2_E2B_OBJS = p2_e2b.o $(RADIO_COMMON_OBJS)
@@ -57,13 +57,10 @@ p2_e3.o: p2_e3.c ../music.h ../radio.h stack.h
 music.o: ../music.c ../music.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-radio.o: ../radio.c ../radio.h ../music.h stack.h queue.h
+radio.o: ../radio.c ../radio.h ../music.h stack.h 
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-queue.o: queue.c queue.h ../types.h
-	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
-
-stack.o: stack.c stack.h ../types.h
+stack.o: stack.c stack.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clear:
@@ -82,12 +79,3 @@ run:
 	@echo ">>>>>>Running p2_e3"
 	./p2_e3 radio_para_dfs.txt 1 9
 
-run_stack:
-	@echo ">>>>>>Running p2_e1s"
-	./p2_e1s radio.txt
-	@echo ">>>>>>Running p2_e2as"
-	./p2_e2as playlist1.txt playlist2.txt
-	@echo ">>>>>>Running p2_e2bs"
-	./p2_e2bs playlistA.txt playlistB.txt
-	@echo ">>>>>>Running p2_e3s"
-	./p2_e3s radio_para_dfs.txt 1 9

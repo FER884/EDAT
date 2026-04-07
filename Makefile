@@ -119,16 +119,16 @@ music.o: music.c music.h
 radio.o: radio.c $(P3_DIR)/queue.h radio.h music.h $(P2_DIR)/stack.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-stack.o: $(P2_DIR)/stack.c $(P2_DIR)/stack.h types.h
+stack.o: $(P2_DIR)/stack.c $(P2_DIR)/stack.h $(P2_DIR)/types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-queue.o: $(P3_DIR)/queue.c $(P3_DIR)/queue.h types.h
+queue.o: $(P3_DIR)/queue.c $(P3_DIR)/queue.h $(P3_DIR)/types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-list.o: $(P3_DIR)/list.c $(P3_DIR)/list.h types.h
+list.o: $(P3_DIR)/list.c $(P3_DIR)/list.h $(P3_DIR)/types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-queueList.o: $(P3_DIR)/queueList.c $(P3_DIR)/queue.h $(P3_DIR)/list.h types.h
+queueList.o: $(P3_DIR)/queueList.c $(P3_DIR)/queue.h $(P3_DIR)/list.h $(P3_DIR)/types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clear:
