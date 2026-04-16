@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  printf("---------------------\n");
+  printf("-----------DFS-----------\n");
   printf("From music id: %ld\n", from_id);
   printf("To music id: %ld\n", to_id);
   printf("Output:\n");
@@ -56,9 +56,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  printf("---------------------\n");
-  printf("BFS:\n");
-  printf("---------------------\n");
+  printf("-----------BFS-----------\n");
   printf("From music id: %ld\n", from_id);
   printf("To music id: %ld\n", to_id);
   printf("Output:\n");

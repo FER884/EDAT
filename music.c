@@ -494,11 +494,11 @@ int music_formatted_print(FILE *pf, const void *m) {
   minutes = aux->duration / 60;
   sec = aux->duration % 60;
 
-  counter = fprintf(pf, "\t ɴᴏᴡ ᴘʟᴀʏɪɴɢ: %s\n", aux->title);
+  counter = fprintf(pf, "\t NOW PLAYING: %s\n", aux->title);
   counter += fprintf(pf, "\t • Artist %s •\n", aux->artist);
   counter += fprintf(pf, "\t──────────⚪──────────\n");
-  counter += fprintf(pf, "\t\t◄◄⠀▐▐ ⠀►►\n");
-  counter += fprintf(pf, "\t 0:00 / %02d:%02d ───○ 🔊⠀\n\n", minutes, sec);
+  counter += fprintf(pf, "\t\t◄◄ ▐▐ ►►\n");
+  counter += fprintf(pf, "\t 0:00 / %02d:%02d ───○ 🔊\n\n", minutes, sec);
 
   return counter;
 }

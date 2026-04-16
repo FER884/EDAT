@@ -562,7 +562,3 @@ Status radio_breadthSearch(Radio *r, long from_id, long to_id) {
   queue_free(q);
   return OK;
 }
-
-Music *radio_get_musicbyindex(Radio *r, int pos) {
-  return radio_getMusicAt(r, pos);
-}
