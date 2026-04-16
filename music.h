@@ -276,6 +276,17 @@ void * music_copy (const void * src);
  */
 int music_plain_print (FILE * pf, const void * m);
 
+/**
+ * @brief Prints in pf the data of a Music followed by a line break.
+ *
+ * @param pf File descriptor
+ * @param m Music to be printed
+ *
+ * @return Returns the number of characters that have been written
+ * successfully. If there have been errors returns -1.
+ */
+int music_line_print (FILE * pf, const void * m);
+
 
 /** 
  * @brief Prints in pf the formatted data of a Music.

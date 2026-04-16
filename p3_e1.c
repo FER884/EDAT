@@ -5,48 +5,15 @@
 #include "queue.h"
 #include "radio.h"
 
-#define MENU_LINE_SIZE 64
-
-static Music *current_music = NULL;
-
-static int now_playing_menu(Queue *q);
-static int read_menu_option(void);
-
-static int read_menu_option(void) {
-  char line[MENU_LINE_SIZE];
-  char *endptr;
-  long option;
-
-  if (!fgets(line, sizeof(line), stdin)) return 2;
-
-  option = strtol(line, &endptr, 10);
-  if (endptr == line) return -1;
-
-  return (int)option;
-}
-
-static int now_playing_menu(Queue *q) {
-  if (current_music) {
-    music_formatted_print(stdout, current_music);
-  } else {
-    printf("\nNo song currently playing.\n");
-  }
-
-  printf("\nUpcoming:\n");
-  if (queue_print(stdout, q, music_plain_print) < 0) return 2;
-
-  printf("\n1. Next song\n");
-  printf("2. Exit\n");
-  printf("Choose an option: ");
-
-  return read_menu_option();
-}
-
 int main(int argc, char **argv) {
   FILE *fin = NULL;
   Radio *radio = NULL;
   Queue *play_queue = NULL;
+  Music *current_music = NULL;
   Music *m = NULL;
+  char line[64];
+  char *endptr;
+  long option_value;
   int option;
   int i;
 
@@ -97,7 +64,35 @@ int main(int argc, char **argv) {
   current_music = (Music *)queue_pop(play_queue);
 
   do {
-    option = now_playing_menu(play_queue);
+    if (current_music) {
+      if (music_formatted_print(stdout, current_music) < 0) {
+        fprintf(stderr, "Error: could not print current music\n");
+        queue_free(play_queue);
+        radio_free(radio);
+        return EXIT_FAILURE;
+      }
+    } else {
+      printf("\nNo song currently playing.\n");
+    }
+
+    printf("\nUpcoming:\n");
+    if (queue_print(stdout, play_queue, music_plain_print) < 0) {
+      fprintf(stderr, "Error: could not print playback queue\n");
+      queue_free(play_queue);
+      radio_free(radio);
+      return EXIT_FAILURE;
+    }
+
+    printf("\n1. Next song\n");
+    printf("2. Exit\n");
+    printf("Choose an option: ");
+
+    if (!fgets(line, sizeof(line), stdin)) {
+      option = 2;
+    } else {
+      option_value = strtol(line, &endptr, 10);
+      option = (endptr == line) ? -1 : (int)option_value;
+    }
 
     if (option == 1) {
       current_music = (Music *)queue_pop(play_queue);

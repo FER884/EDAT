@@ -5,19 +5,6 @@
 #include "music.h"
 #include "radio.h"
 
-static int music_line_print(FILE *pf, const void *m);
-
-static int music_line_print(FILE *pf, const void *m) {
-  int written;
-
-  if (!pf || !m) return -1;
-
-  written = music_plain_print(pf, m);
-  if (written < 0) return -1;
-
-  return written + fprintf(pf, "\n");
-}
-
 int main(int argc, char **argv) {
   FILE *fin = NULL;
   Radio *radio = NULL;
