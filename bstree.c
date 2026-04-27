@@ -207,4 +207,163 @@ int tree_postOrder(FILE *f, const BSTree *tree) {
   return _bst_postOrder_rec(tree->root, f, tree->print_ele) + fprintf(f, "\n");
 }
 
-/**** TODO: find_min, find_max, insert, contains, remove ****/
+/**** TO D O: find_min, find_max, insert, contains, remove ****/
+void *tree_find_min(BSTree *tree) {
+  BSTree aux_tree;
+
+  if (!tree || !tree->root) {
+    return NULL;
+  }
+
+  if (!tree->root->left) {
+    return tree->root->info;
+  }
+
+  aux_tree.root = tree->root->left;
+  aux_tree.print_ele = tree->print_ele;
+  aux_tree.cmp_ele = tree->cmp_ele;
+
+  return tree_find_min(&aux_tree);
+}
+
+void *tree_find_max(BSTree *tree) {
+  BSTree aux_tree;
+
+  if (!tree || !tree->root) {
+    return NULL;
+  }
+
+  if (!tree->root->right) {
+    return tree->root->info;
+  }
+
+  aux_tree.root = tree->root->right;
+  aux_tree.print_ele = tree->print_ele;
+  aux_tree.cmp_ele = tree->cmp_ele;
+
+  return tree_find_max(&aux_tree);
+}
+
+Bool tree_contains(BSTree *tree, const void *elem) {
+  BSTree aux_tree;
+  int cmp;
+
+  if (!tree || !tree->root || !elem) {
+    return FALSE;
+  }
+
+  cmp = tree->cmp_ele(elem, tree->root->info);
+  if (cmp == 0) {
+    return TRUE;
+  }
+
+  aux_tree.print_ele = tree->print_ele;
+  aux_tree.cmp_ele = tree->cmp_ele;
+  aux_tree.root = (cmp < 0) ? tree->root->left : tree->root->right;
+
+  return tree_contains(&aux_tree, elem);
+}
+
+Status tree_insert(BSTree *tree, const void *elem) {
+  BSTree aux_tree;
+  BSTNode *new_node;
+  int cmp;
+  Status st;
+
+  if (!tree || !elem) {
+    return ERROR;
+  }
+
+  if (!tree->root) {
+    new_node = _bst_node_new();
+    if (!new_node) {
+      return ERROR;
+    }
+
+    new_node->info = (void *)elem;
+    tree->root = new_node;
+    return OK;
+  }
+
+  cmp = tree->cmp_ele(elem, tree->root->info);
+  if (cmp == 0) {
+    return OK;
+  }
+
+  aux_tree.print_ele = tree->print_ele;
+  aux_tree.cmp_ele = tree->cmp_ele;
+  aux_tree.root = (cmp < 0) ? tree->root->left : tree->root->right;
+
+  st = tree_insert(&aux_tree, elem);
+  if (cmp < 0) {
+    tree->root->left = aux_tree.root;
+  } else {
+    tree->root->right = aux_tree.root;
+  }
+
+  return st;
+}
+
+Status tree_remove(BSTree *tree, const void *elem) {
+  BSTree aux_tree;
+  BSTNode *aux_node;
+  void *replacement;
+  int cmp;
+  Status st;
+
+  if (!tree || !elem) {
+    return ERROR;
+  }
+
+  if (!tree->root) {
+    return OK;
+  }
+
+  cmp = tree->cmp_ele(elem, tree->root->info);
+
+  if (cmp < 0 || cmp > 0) {
+    aux_tree.print_ele = tree->print_ele;
+    aux_tree.cmp_ele = tree->cmp_ele;
+    aux_tree.root = (cmp < 0) ? tree->root->left : tree->root->right;
+
+    st = tree_remove(&aux_tree, elem);
+    if (cmp < 0) {
+      tree->root->left = aux_tree.root;
+    } else {
+      tree->root->right = aux_tree.root;
+    }
+
+    return st;
+  }
+
+  if (!tree->root->left && !tree->root->right) {
+    _bst_node_free(tree->root);
+    tree->root = NULL;
+    return OK;
+  }
+
+  if (!tree->root->left) {
+    aux_node = tree->root->right;
+    _bst_node_free(tree->root);
+    tree->root = aux_node;
+    return OK;
+  }
+
+  if (!tree->root->right) {
+    aux_node = tree->root->left;
+    _bst_node_free(tree->root);
+    tree->root = aux_node;
+    return OK;
+  }
+
+  aux_tree.root = tree->root->right;
+  aux_tree.print_ele = tree->print_ele;
+  aux_tree.cmp_ele = tree->cmp_ele;
+
+  replacement = tree_find_min(&aux_tree);
+  tree->root->info = replacement;
+  st = tree_remove(&aux_tree, replacement);
+  tree->root->right = aux_tree.root;
+
+  return st;
+}

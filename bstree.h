@@ -4,11 +4,15 @@
 #include <stddef.h>
 #include "list.h"
 #include "types.h"
-
+#include <stdio.h>
 /**
  * BSTree type definition: a binary search of arbitrary elements.
  */
 typedef struct _BSTree BSTree;
+
+typedef int (*P_ele_print)(FILE *, const void *);
+typedef int (*P_ele_cmp)(const void *, const void *);
+
 
 /**
  * @brief Public function that creates a new BSTree.
