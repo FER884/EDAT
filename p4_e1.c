@@ -254,14 +254,14 @@ int main(int argc, char const *argv[]) {
     elapsed = clock() - elapsed;
     fprintf(f_out, " - %ld ticks (%f seconds)\n", (long)elapsed, ((float) elapsed) / CLOCKS_PER_SEC);
 
-  /*EXERCISE 2 - TREE_REMOVE
+  // EXERCISE 2 - TREE_REMOVE
     fprintf(f_out, "Removing element in tree: ");
     elapsed = clock();
     fprintf(f_out, "%s", tree_remove(t, m) == OK ? "OK" : "ERR");
     elapsed = clock() - elapsed;
     fprintf(f_out, " - %ld ticks (%f seconds)\n", (long)elapsed, ((float) elapsed) / CLOCKS_PER_SEC);
     fprintf(f_out, "Tree size: %lu\nTree depth: %d\n", (unsigned long)tree_size(t), tree_depth(t));
-*/
+
   } else {
     fprintf(f_out, "Element NOT found");
     elapsed = clock() - elapsed;
