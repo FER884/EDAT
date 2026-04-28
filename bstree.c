@@ -22,6 +22,7 @@ struct _BSTree {
 /*** BSTNode TAD private functions ***/
 void _tree_rangeSearch_rec(BSTNode *node, void *min, void *max, List *list, P_ele_cmp cmp);
 int _tree_countLongSongs_rec(BSTNode *node, int min_duration);
+
 BSTNode *_bst_node_new() {
   BSTNode *pn = NULL;
 

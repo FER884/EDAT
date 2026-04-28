@@ -9,7 +9,8 @@ P2_EJS = p2_e1 p2_e2a p2_e2b p2_e3
 P2_STACK_EJS = p2_e1s p2_e2as p2_e2bs p2_e3s
 P3_EJS = p3_e1 p3_e2 p3_e3
 P3_QUEUE_LIST_EJS = p3_e1s p3_e2s
-EJS = $(P1_EJS) $(P2_EJS) $(P2_STACK_EJS) $(P3_EJS) $(P3_QUEUE_LIST_EJS)
+P4_EJS = p4_e1
+EJS = $(P1_EJS) $(P2_EJS) $(P2_STACK_EJS) $(P3_EJS) $(P3_QUEUE_LIST_EJS) $(P4_EJS)
 
 STACK_LIB = libstack.a
 
@@ -28,6 +29,7 @@ P3_E2_OBJS = p3_e2.o $(RADIO_COMMON_OBJS)
 P3_E3_OBJS = p3_e3.o $(RADIO_COMMON_OBJS) list.o
 P3_QUEUE_LIST_E1_OBJS = p3_e1.o $(RADIO_COMMON_LIST_OBJS)
 P3_QUEUE_LIST_E2_OBJS = p3_e2.o $(RADIO_COMMON_LIST_OBJS)
+P4_E1_OBJS = p4_e1.o bstree.o $(RADIO_COMMON_OBJS)
 ########################################################
 
 all: $(EJS) clear
@@ -80,6 +82,9 @@ p3_e1s: $(P3_QUEUE_LIST_E1_OBJS) $(STACK_LIB)
 p3_e2s: $(P3_QUEUE_LIST_E2_OBJS) $(STACK_LIB)
 	$(CC) $(CFLAGS) -o $@ $(P3_QUEUE_LIST_E2_OBJS) $(STACK_LIB)
 
+p4_e1: $(P4_E1_OBJS) $(STACK_LIB)
+	$(CC) $(CFLAGS) -o $@ $(P4_E1_OBJS) $(STACK_LIB)
+
 p1_e1.o: p1_e1.c music.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
@@ -110,6 +115,9 @@ p3_e2.o: p3_e2.c music.h queue.h radio.h stack.h
 p3_e3.o: p3_e3.c list.h music.h radio.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
+p4_e1.o: p4_e1.c bstree.h radio.h types.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
 music.o: music.c music.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -123,6 +131,9 @@ queue.o: queue.c queue.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 list.o: list.c list.h types.h
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+
+bstree.o: bstree.c bstree.h list.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 queueList.o: queueList.c queue.h list.h types.h
