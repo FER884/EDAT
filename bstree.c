@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "bstree.h"
+#include "music.h"
 
 /* START [_BSTNode] */
 typedef struct _BSTNode {
@@ -368,3 +369,45 @@ Status tree_remove(BSTree *tree, const void *elem) {
 
   return st;
 }
+
+List *tree_rangeSearch(const BSTree *tree, void *min, void *max) {
+  List *list = NULL;
+
+  if (!tree || !min || !max) {
+    return NULL;
+  }
+
+  list = list_new();
+  if (!list) {
+    return NULL;
+  }
+
+  _tree_rangeSearch_rec(tree->root, min, max, list, tree->cmp_ele);
+
+  return list;
+}
+
+void _tree_rangeSearch_rec(BSTNode *node, void *min, void *max, List *list, P_ele_cmp cmp) {
+  int cmp_min, cmp_max;
+
+  if (!node || !min || !max || !list || !cmp) {
+    return;
+  }
+
+  cmp_min = cmp(node->info, min);
+  cmp_max = cmp(node->info, max);
+
+  if (cmp_min > 0) {
+    _tree_rangeSearch_rec(node->left, min, max, list, cmp);
+  }
+
+  if (cmp_min >= 0 && cmp_max <= 0) {
+    list_pushBack(list, node->info);
+  }
+
+  if (cmp_max < 0) {
+    _tree_rangeSearch_rec(node->right, min, max, list, cmp);
+  }
+}
+
+

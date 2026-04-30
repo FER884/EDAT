@@ -29,7 +29,7 @@ P3_E2_OBJS = p3_e2.o $(RADIO_COMMON_OBJS)
 P3_E3_OBJS = p3_e3.o $(RADIO_COMMON_OBJS) list.o
 P3_QUEUE_LIST_E1_OBJS = p3_e1.o $(RADIO_COMMON_LIST_OBJS)
 P3_QUEUE_LIST_E2_OBJS = p3_e2.o $(RADIO_COMMON_LIST_OBJS)
-P4_E1_OBJS = p4_e1.o bstree.o $(RADIO_COMMON_OBJS)
+P4_E1_OBJS = p4_e1.o bstree.o list.o $(RADIO_COMMON_OBJS)
 ########################################################
 
 all: $(EJS) clear
@@ -133,7 +133,7 @@ queue.o: queue.c queue.h types.h
 list.o: list.c list.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
-bstree.o: bstree.c bstree.h list.h types.h
+bstree.o: bstree.c bstree.h list.h music.h types.h
 	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 queueList.o: queueList.c queue.h list.h types.h
