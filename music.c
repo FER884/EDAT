@@ -34,6 +34,22 @@ Private function:
 */
 static Status music_setField(Music *m, char *key, char *value);
 static Status music_parseState(const char *value, State *state);
+static char *music_strdup(const char *src);
+
+static char *music_strdup(const char *src) {
+  char *copy;
+  size_t len;
+
+  if (!src) return NULL;
+
+  len = strlen(src) + 1;
+  copy = (char *)malloc(sizeof(char) * len);
+  if (!copy) return NULL;
+
+  strcpy(copy, src);
+
+  return copy;
+}
 
 /**
  * @brief Parses a textual state and maps it to State enum.
@@ -149,7 +165,7 @@ Music *music_initFromString(char *descr) {
 
   if (!descr) return NULL;
 
-  buffer = strdup(descr);
+  buffer = music_strdup(descr);
   if (!buffer) return NULL;
 
   m = music_init();

@@ -109,7 +109,7 @@ int stack_print(FILE *fp, const Stack *s, P_stack_ele_print f) {
 
   if (!fp || !s || !f) return -1;
 
-  written = fprintf(fp, "SIZE: %zu\n", stack_size(s));
+  written = fprintf(fp, "SIZE: %lu\n", (unsigned long)stack_size(s));
   if (written < 0) return -1;
   chars += written;
 

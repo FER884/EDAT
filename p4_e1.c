@@ -7,7 +7,6 @@
 #include "radio.h"
 #include "types.h"
 
-/* START Private methods */
 int mainCleanUp (int ret_value, Radio *r, FILE *pf, Music **songs) {
   if (songs) {
     free(songs);
@@ -162,7 +161,6 @@ int qsort_fun(const void *e1, const void *e2){
 
   return music_cmp(*pm1, *pm2);
 }
-/* END Private methods */
 
 
 int main(int argc, char const *argv[]) {
@@ -196,7 +194,6 @@ int main(int argc, char const *argv[]) {
     r = radio_init();
     if (!r) mainCleanUp (EXIT_FAILURE, r, f_in, songs);
     
-    /* lee el fichero */
     if  (radio_readFromFile(f_in, r) == ERROR) {
       fprintf(stdout, "Not file or File format incorrect\n");
       mainCleanUp (EXIT_FAILURE, r, f_in, songs);
@@ -254,7 +251,6 @@ int main(int argc, char const *argv[]) {
     elapsed = clock() - elapsed;
     fprintf(f_out, " - %ld ticks (%f seconds)\n", (long)elapsed, ((float) elapsed) / CLOCKS_PER_SEC);
 
-  // EXERCISE 2 - TREE_REMOVE
     fprintf(f_out, "Removing element in tree: ");
     elapsed = clock();
     fprintf(f_out, "%s", tree_remove(t, m) == OK ? "OK" : "ERR");
@@ -270,6 +266,8 @@ int main(int argc, char const *argv[]) {
   
   tree_destroy(t);
   mainCleanUp (EXIT_SUCCESS, r, f_in, songs);
+
+  return EXIT_SUCCESS;
 }
 
 /*

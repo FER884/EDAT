@@ -21,10 +21,25 @@ struct _BSTree {
 /* END [_BSTree] */
 
 /*** BSTNode TAD private functions ***/
-void _tree_rangeSearch_rec(BSTNode *node, void *min, void *max, List *list, P_ele_cmp cmp);
-int _tree_countLongSongs_rec(BSTNode *node, int min_duration);
+static BSTNode *_bst_node_new(void);
+static void _bst_node_free(BSTNode *pn);
+static void _bst_node_free_rec(BSTNode *pn);
+static int _bst_depth_rec(BSTNode *pn);
+static int _bst_size_rec(BSTNode *pn);
+static int _bst_preOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele);
+static int _bst_inOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele);
+static int _bst_postOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele);
+static void *_bst_find_min_rec(BSTNode *pn);
+static void *_bst_find_max_rec(BSTNode *pn);
+static Bool _bst_contains_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp);
+static BSTNode *_bst_insert_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp,
+                                Status *status);
+static BSTNode *_bst_remove_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp);
+static Status _tree_rangeSearch_rec(BSTNode *node, void *min, void *max,
+                                    List *list, P_ele_cmp cmp);
+static int _tree_countLongSongs_rec(BSTNode *node, int min_duration);
 
-BSTNode *_bst_node_new() {
+static BSTNode *_bst_node_new(void) {
   BSTNode *pn = NULL;
 
   pn = malloc(sizeof(BSTNode));
@@ -39,7 +54,7 @@ BSTNode *_bst_node_new() {
   return pn;
 }
 
-void _bst_node_free(BSTNode *pn) {
+static void _bst_node_free(BSTNode *pn) {
   if (!pn) {
     return;
   }
@@ -47,7 +62,7 @@ void _bst_node_free(BSTNode *pn) {
   free(pn);
 }
 
-void _bst_node_free_rec(BSTNode *pn) {
+static void _bst_node_free_rec(BSTNode *pn) {
   if (!pn) {
     return;
   }
@@ -59,7 +74,7 @@ void _bst_node_free_rec(BSTNode *pn) {
   return;
 }
 
-int _bst_depth_rec(BSTNode *pn) {
+static int _bst_depth_rec(BSTNode *pn) {
   int depth_l, depth_r;
 
   if (!pn) {
@@ -76,7 +91,7 @@ int _bst_depth_rec(BSTNode *pn) {
   }
 }
 
-int _bst_size_rec(BSTNode *pn) {
+static int _bst_size_rec(BSTNode *pn) {
   int count = 0;
 
   if (!pn) {
@@ -89,7 +104,7 @@ int _bst_size_rec(BSTNode *pn) {
   return count + 1;
 }
 
-int _bst_preOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
+static int _bst_preOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
   int count = 0;
 
   if (!pn) {
@@ -103,7 +118,7 @@ int _bst_preOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
   return count;
 }
 
-int _bst_inOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
+static int _bst_inOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
   int count = 0;
 
   if (!pn) {
@@ -117,7 +132,7 @@ int _bst_inOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
   return count;
 }
 
-int _bst_postOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
+static int _bst_postOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele) {
   int count = 0;
 
   if (!pn) {
@@ -209,165 +224,170 @@ int tree_postOrder(FILE *f, const BSTree *tree) {
   return _bst_postOrder_rec(tree->root, f, tree->print_ele) + fprintf(f, "\n");
 }
 
-/**** TO D O: find_min, find_max, insert, contains, remove ****/
-void *tree_find_min(BSTree *tree) {
-  BSTree aux_tree;
-
-  if (!tree || !tree->root) {
+static void *_bst_find_min_rec(BSTNode *pn) {
+  if (!pn) {
     return NULL;
   }
 
-  if (!tree->root->left) {
-    return tree->root->info;
+  if (!pn->left) {
+    return pn->info;
   }
 
-  aux_tree.root = tree->root->left;
-  aux_tree.print_ele = tree->print_ele;
-  aux_tree.cmp_ele = tree->cmp_ele;
-
-  return tree_find_min(&aux_tree);
+  return _bst_find_min_rec(pn->left);
 }
 
-void *tree_find_max(BSTree *tree) {
-  BSTree aux_tree;
-
-  if (!tree || !tree->root) {
+static void *_bst_find_max_rec(BSTNode *pn) {
+  if (!pn) {
     return NULL;
   }
 
-  if (!tree->root->right) {
-    return tree->root->info;
+  if (!pn->right) {
+    return pn->info;
   }
 
-  aux_tree.root = tree->root->right;
-  aux_tree.print_ele = tree->print_ele;
-  aux_tree.cmp_ele = tree->cmp_ele;
-
-  return tree_find_max(&aux_tree);
+  return _bst_find_max_rec(pn->right);
 }
 
-Bool tree_contains(BSTree *tree, const void *elem) {
-  BSTree aux_tree;
-  int cmp;
+static Bool _bst_contains_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp) {
+  int cmp_value;
 
-  if (!tree || !tree->root || !elem) {
+  if (!pn || !elem || !cmp) {
     return FALSE;
   }
 
-  cmp = tree->cmp_ele(elem, tree->root->info);
-  if (cmp == 0) {
+  cmp_value = cmp(elem, pn->info);
+  if (cmp_value == 0) {
     return TRUE;
   }
 
-  aux_tree.print_ele = tree->print_ele;
-  aux_tree.cmp_ele = tree->cmp_ele;
-  aux_tree.root = (cmp < 0) ? tree->root->left : tree->root->right;
-
-  return tree_contains(&aux_tree, elem);
-}
-
-Status tree_insert(BSTree *tree, const void *elem) {
-  BSTree aux_tree;
-  BSTNode *new_node;
-  int cmp;
-  Status st;
-
-  if (!tree || !elem) {
-    return ERROR;
+  if (cmp_value < 0) {
+    return _bst_contains_rec(pn->left, elem, cmp);
   }
 
-  if (!tree->root) {
+  return _bst_contains_rec(pn->right, elem, cmp);
+}
+
+static BSTNode *_bst_insert_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp,
+                                Status *status) {
+  BSTNode *new_node;
+  int cmp_value;
+
+  if (!elem || !cmp || !status) {
+    return pn;
+  }
+
+  if (!pn) {
     new_node = _bst_node_new();
     if (!new_node) {
-      return ERROR;
+      *status = ERROR;
+      return NULL;
     }
 
     new_node->info = (void *)elem;
-    tree->root = new_node;
-    return OK;
+    *status = OK;
+    return new_node;
   }
 
-  cmp = tree->cmp_ele(elem, tree->root->info);
-  if (cmp == 0) {
-    return OK;
-  }
-
-  aux_tree.print_ele = tree->print_ele;
-  aux_tree.cmp_ele = tree->cmp_ele;
-  aux_tree.root = (cmp < 0) ? tree->root->left : tree->root->right;
-
-  st = tree_insert(&aux_tree, elem);
-  if (cmp < 0) {
-    tree->root->left = aux_tree.root;
+  cmp_value = cmp(elem, pn->info);
+  if (cmp_value < 0) {
+    pn->left = _bst_insert_rec(pn->left, elem, cmp, status);
+  } else if (cmp_value > 0) {
+    pn->right = _bst_insert_rec(pn->right, elem, cmp, status);
   } else {
-    tree->root->right = aux_tree.root;
+    *status = OK;
   }
 
-  return st;
+  return pn;
 }
 
-Status tree_remove(BSTree *tree, const void *elem) {
-  BSTree aux_tree;
+static BSTNode *_bst_remove_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp) {
   BSTNode *aux_node;
   void *replacement;
-  int cmp;
-  Status st;
+  int cmp_value;
+
+  if (!pn) {
+    return NULL;
+  }
+
+  cmp_value = cmp(elem, pn->info);
+  if (cmp_value < 0) {
+    pn->left = _bst_remove_rec(pn->left, elem, cmp);
+    return pn;
+  }
+
+  if (cmp_value > 0) {
+    pn->right = _bst_remove_rec(pn->right, elem, cmp);
+    return pn;
+  }
+
+  if (!pn->left && !pn->right) {
+    _bst_node_free(pn);
+    return NULL;
+  }
+
+  if (!pn->left) {
+    aux_node = pn->right;
+    _bst_node_free(pn);
+    return aux_node;
+  }
+
+  if (!pn->right) {
+    aux_node = pn->left;
+    _bst_node_free(pn);
+    return aux_node;
+  }
+
+  replacement = _bst_find_min_rec(pn->right);
+  pn->info = replacement;
+  pn->right = _bst_remove_rec(pn->right, replacement, cmp);
+
+  return pn;
+}
+
+void *tree_find_min(BSTree *tree) {
+  if (!tree) {
+    return NULL;
+  }
+
+  return _bst_find_min_rec(tree->root);
+}
+
+void *tree_find_max(BSTree *tree) {
+  if (!tree) {
+    return NULL;
+  }
+
+  return _bst_find_max_rec(tree->root);
+}
+
+Bool tree_contains(BSTree *tree, const void *elem) {
+  if (!tree || !elem) {
+    return FALSE;
+  }
+
+  return _bst_contains_rec(tree->root, elem, tree->cmp_ele);
+}
+
+Status tree_insert(BSTree *tree, const void *elem) {
+  Status status = OK;
 
   if (!tree || !elem) {
     return ERROR;
   }
 
-  if (!tree->root) {
-    return OK;
+  tree->root = _bst_insert_rec(tree->root, elem, tree->cmp_ele, &status);
+
+  return status;
+}
+
+Status tree_remove(BSTree *tree, const void *elem) {
+  if (!tree || !elem) {
+    return ERROR;
   }
 
-  cmp = tree->cmp_ele(elem, tree->root->info);
+  tree->root = _bst_remove_rec(tree->root, elem, tree->cmp_ele);
 
-  if (cmp < 0 || cmp > 0) {
-    aux_tree.print_ele = tree->print_ele;
-    aux_tree.cmp_ele = tree->cmp_ele;
-    aux_tree.root = (cmp < 0) ? tree->root->left : tree->root->right;
-
-    st = tree_remove(&aux_tree, elem);
-    if (cmp < 0) {
-      tree->root->left = aux_tree.root;
-    } else {
-      tree->root->right = aux_tree.root;
-    }
-
-    return st;
-  }
-
-  if (!tree->root->left && !tree->root->right) {
-    _bst_node_free(tree->root);
-    tree->root = NULL;
-    return OK;
-  }
-
-  if (!tree->root->left) {
-    aux_node = tree->root->right;
-    _bst_node_free(tree->root);
-    tree->root = aux_node;
-    return OK;
-  }
-
-  if (!tree->root->right) {
-    aux_node = tree->root->left;
-    _bst_node_free(tree->root);
-    tree->root = aux_node;
-    return OK;
-  }
-
-  aux_tree.root = tree->root->right;
-  aux_tree.print_ele = tree->print_ele;
-  aux_tree.cmp_ele = tree->cmp_ele;
-
-  replacement = tree_find_min(&aux_tree);
-  tree->root->info = replacement;
-  st = tree_remove(&aux_tree, replacement);
-  tree->root->right = aux_tree.root;
-
-  return st;
+  return OK;
 }
 
 List *tree_rangeSearch(const BSTree *tree, void *min, void *max) {
@@ -382,32 +402,75 @@ List *tree_rangeSearch(const BSTree *tree, void *min, void *max) {
     return NULL;
   }
 
-  _tree_rangeSearch_rec(tree->root, min, max, list, tree->cmp_ele);
+  if (tree->cmp_ele(min, max) > 0) {
+    return list;
+  }
+
+  if (_tree_rangeSearch_rec(tree->root, min, max, list, tree->cmp_ele) == ERROR) {
+    list_free(list);
+    return NULL;
+  }
 
   return list;
 }
 
-void _tree_rangeSearch_rec(BSTNode *node, void *min, void *max, List *list, P_ele_cmp cmp) {
+static Status _tree_rangeSearch_rec(BSTNode *node, void *min, void *max,
+                                    List *list, P_ele_cmp cmp) {
   int cmp_min, cmp_max;
 
-  if (!node || !min || !max || !list || !cmp) {
-    return;
+  if (!node) {
+    return OK;
+  }
+
+  if (!min || !max || !list || !cmp) {
+    return ERROR;
   }
 
   cmp_min = cmp(node->info, min);
   cmp_max = cmp(node->info, max);
 
   if (cmp_min > 0) {
-    _tree_rangeSearch_rec(node->left, min, max, list, cmp);
+    if (_tree_rangeSearch_rec(node->left, min, max, list, cmp) == ERROR) {
+      return ERROR;
+    }
   }
 
   if (cmp_min >= 0 && cmp_max <= 0) {
-    list_pushBack(list, node->info);
+    if (list_pushBack(list, node->info) == ERROR) {
+      return ERROR;
+    }
   }
 
   if (cmp_max < 0) {
-    _tree_rangeSearch_rec(node->right, min, max, list, cmp);
+    if (_tree_rangeSearch_rec(node->right, min, max, list, cmp) == ERROR) {
+      return ERROR;
+    }
   }
+
+  return OK;
 }
 
+int tree_countLongSongs(const BSTree *tree, int min_duration) {
+  if (!tree || min_duration < 0) {
+    return -1;
+  }
 
+  return _tree_countLongSongs_rec(tree->root, min_duration);
+}
+
+static int _tree_countLongSongs_rec(BSTNode *node, int min_duration) {
+  int count;
+
+  if (!node) {
+    return 0;
+  }
+
+  count = _tree_countLongSongs_rec(node->left, min_duration);
+  count += _tree_countLongSongs_rec(node->right, min_duration);
+
+  if (music_getDuration((Music *)node->info) > min_duration) {
+    count++;
+  }
+
+  return count;
+}
